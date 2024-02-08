@@ -3,21 +3,88 @@
  * Task 1
  */
 function leafFiles(files) {
-    return [];
+
+    // unsafe solution
+    // let folderFiles = files.filter(file => file.name.includes('.')).map(file => file.name);
+
+
+    // safer solution 
+    // check if file name ends with any of the file types in the array
+    let fileTypes = ['.txt', '.jpg', '.xlsx', '.zip', '.pptx', '.mp4', '.py', '.mp3'];
+    let folderFiles = files.filter(file => fileTypes.some(type => file.name.endsWith(type))).map(file => file.name);
+
+    return folderFiles;
 }
 
 /**
- * Task 1
+ * Task 2
  */
 function kLargestCategories(files, k) {
-    return [];
+    let categories = [];
+
+    for (let file of files) {
+        for (let y of file.categories) {
+            if (!categories.some(c => c.name === y)) {
+                categories.push({ name: y, count: 1 });
+            } else {
+                categories.find(c => c.name === y).count++;
+            }
+        }
+    }
+
+    categories.sort((a, b) => {
+        if (a.count === b.count) {
+            return a.name.localeCompare(b.name);
+        }
+        return b.count - a.count;
+    });
+
+    return categories.slice(0, k).map(c => c.name);
+
 }
 
 /**
- * Task 1
+ * Task 3
  */
 function largestFileSize(files) {
-    return 0;
+
+    let parentFolders = [];
+    // find the parent folders
+    for (let file in files) {
+        if (files[file].parent === -1) {
+            parentFolders.push(files[file]);
+            files.splice(file, 1);
+        }
+    }
+    
+    let largestSize = 0;
+    // loop through subfolders and add their sizes
+    while (parentFolders.length > 0) {
+        let parent = parentFolders.pop();
+        let size = parent.size;
+        
+        // add parent folder's children to the files array
+        let children = files.filter(file => file.parent === parent.id);
+        // loop through children and add their sizes
+        while (children.length) {
+            let child = children.pop();
+            size += child.size;
+            for (let file in files) {
+                if (files[file].parent === child.id) {
+                    children.push(files[file]);
+                    files.splice(file, 1);
+                }
+            }
+        }
+
+        if (size > largestSize) {
+            largestSize = size;
+        }
+    }
+    
+
+
+    return largestSize;
 }
 
 
